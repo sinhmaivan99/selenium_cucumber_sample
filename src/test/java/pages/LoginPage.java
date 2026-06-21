@@ -12,7 +12,7 @@ import utils.DataHelper;
 /**
  * Page Object for the CRM Login page.
  * Encapsulates all locators and business logic for login interactions.
- * Uses fluent pattern — all action methods return {@code this} for chaining.
+ * Uses a fluent pattern — all action methods return {@code this} for chaining.
  */
 public class LoginPage extends BasePage {
 
@@ -40,41 +40,36 @@ public class LoginPage extends BasePage {
     // ═══════════════════════ ACTIONS ═══════════════════════
 
     @Step("Open Login page")
-    public LoginPage open() {
+    public void open() {
         navigateTo(DataHelper.get("urls.login"));
-        return this;
     }
 
     @Step("Enter email: {email}")
-    public LoginPage enterEmail(String email) {
+    public void enterEmail(String email) {
         setText(emailInput, email);
-        return this;
     }
 
     @Step("Enter password")
-    public LoginPage enterPassword(String password) {
+    public void enterPassword(String password) {
         setText(passwordInput, password);
-        return this;
     }
 
     @Step("Click Login button")
-    public LoginPage clickLogin() {
+    public void clickLogin() {
         click(loginButton);
-        return this;
     }
 
     @Step("Tick Remember Me checkbox")
     public LoginPage tickRememberMe() {
-        setCheckbox(rememberMeCheckbox, true);
+        setCheckbox(rememberMeCheckbox);
         return this;
     }
 
     @Step("Login with email: {email}")
-    public LoginPage performLogin(String email, String password) {
+    public void performLogin(String email, String password) {
         enterEmail(email);
         enterPassword(password);
         clickLogin();
-        return this;
     }
 
     // ═══════════════════════ ASSERTIONS / QUERIES ═══════════════════════
@@ -96,7 +91,7 @@ public class LoginPage extends BasePage {
 
     @Step("Check if password field is masked")
     public boolean isPasswordMasked() {
-        return "password".equals(getAttribute(passwordInput, "type"));
+        return "password".equals(getAttribute(passwordInput));
     }
 
     @Step("Check if Login button is displayed")

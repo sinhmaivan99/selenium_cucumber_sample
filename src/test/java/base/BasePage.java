@@ -11,6 +11,7 @@ import utils.LogHelper;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -96,10 +97,11 @@ public class BasePage {
      * Retries an operation that returns a value up to MAX_RETRIES times.
      */
     @SuppressWarnings("SameParameterValue")
-    private <T> T retrySupplier(Supplier<T> operation, String operationName) {
-        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    private <T> void retrySupplier(Supplier<T> operation, String operationName) {
+        for (int attempt = 1; true; attempt++) {
             try {
-                return operation.get();
+                operation.get();
+                return;
             } catch (StaleElementReferenceException | ElementClickInterceptedException e) {
                 LogHelper.warn(operationName + " failed: " + e.getClass().getSimpleName()
                         + " — retry " + attempt + "/" + MAX_RETRIES);
@@ -107,10 +109,9 @@ public class BasePage {
                     throw new RuntimeException("Failed: " + operationName
                             + " after " + MAX_RETRIES + " retries", e);
                 }
-                sleep(RETRY_DELAY_MS);
+                sleep();
             }
         }
-        throw new RuntimeException("Failed: " + operationName + " — unexpected exit");
     }
 
     // ═══════════════════════ CLICK & INPUT ═══════════════════════
@@ -168,10 +169,10 @@ public class BasePage {
     // ═══════════════════════ CHECKBOX & DROPDOWN ═══════════════════════
 
     @Step("Set checkbox to: {checked}")
-    protected void setCheckbox(WebElement checkbox, boolean checked) {
-        LogHelper.info("Setting checkbox to: " + checked);
+    protected void setCheckbox(WebElement checkbox) {
+        LogHelper.info("Setting checkbox to: " + true);
         waitForClickable(checkbox);
-        if (checkbox.isSelected() != checked) {
+        if (!checkbox.isSelected()) {
             checkbox.click();
         }
     }
@@ -208,8 +209,8 @@ public class BasePage {
         return waitForVisible(locator).getText().trim();
     }
 
-    protected String getAttribute(WebElement element, String attribute) {
-        return waitForVisible(element).getAttribute(attribute);
+    protected String getAttribute(WebElement element) {
+        return waitForVisible(element).getAttribute("type");
     }
 
     protected String getCssValue(WebElement element, String property) {
@@ -295,8 +296,8 @@ public class BasePage {
         executeJs("arguments[0].value=arguments[1];", element, text);
     }
 
-    protected Object executeJs(String script, Object... args) {
-        return ((JavascriptExecutor) driver).executeScript(script, args);
+    protected void executeJs(String script, Object... args) {
+        ((JavascriptExecutor) driver).executeScript(script, args);
     }
 
     // ═══════════════════════ ALERTS ═══════════════════════
@@ -400,8 +401,8 @@ public class BasePage {
     @Step("Wait for page load to complete")
     public void waitForPageLoad() {
         LogHelper.info("Waiting for page load to complete");
-        wait.until(webDriver -> ((JavascriptExecutor) webDriver)
-                .executeScript("return document.readyState").equals("complete"));
+        wait.until(webDriver -> Objects.equals(((JavascriptExecutor) webDriver)
+                .executeScript("return document.readyState"), "complete"));
     }
 
     // ═══════════════════════ UTILITY ═══════════════════════
@@ -410,9 +411,9 @@ public class BasePage {
         return new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
     }
 
-    private void sleep(long millis) {
+    private void sleep() {
         try {
-            Thread.sleep(millis);
+            Thread.sleep(BasePage.RETRY_DELAY_MS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

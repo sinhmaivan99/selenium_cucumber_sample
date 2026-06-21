@@ -41,12 +41,12 @@ public final class ScreenRecorderHelper {
     // ═══════════════════════ SCREENSHOT ═══════════════════════
 
     @Attachment(value = "Screenshot: {testName}", type = "image/png")
-    public static byte[] captureScreenshot(WebDriver driver, String testName) {
+    public static void captureScreenshot(WebDriver driver, String testName) {
         LogHelper.info("Taking screenshot for: " + testName);
-        return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+        ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
     }
 
-    public static String saveScreenshotToFile(WebDriver driver, String testName) {
+    public static void saveScreenshotToFile(WebDriver driver, String testName) {
         try {
             ensureDirectory(SCREENSHOT_DIR);
 
@@ -55,7 +55,6 @@ public final class ScreenRecorderHelper {
             Path filePath = Paths.get(SCREENSHOT_DIR, fileName);
             Files.write(filePath, screenshot);
 
-            return filePath.toAbsolutePath().toString();
         } catch (IOException e) {
             LogHelper.error("Failed to save screenshot: " + testName, e);
             throw new RuntimeException("Failed to save screenshot: " + testName, e);
@@ -136,15 +135,13 @@ public final class ScreenRecorderHelper {
     // ═══════════════════════ PRIVATE ═══════════════════════
 
     @Attachment(value = "Video on Failure", type = "video/avi")
-    private static byte[] attachVideoToAllure(File videoFile) {
+    private static void attachVideoToAllure(File videoFile) {
         try {
             if (videoFile != null && videoFile.exists()) {
-                return Files.readAllBytes(videoFile.toPath());
+                Files.readAllBytes(videoFile.toPath());
             }
-            return new byte[0];
         } catch (IOException e) {
             LogHelper.error("Failed to attach video to Allure", e);
-            return new byte[0];
         }
     }
 

@@ -16,7 +16,7 @@ import java.time.Duration;
 /**
  * Thread-safe WebDriver factory.
  * Manages browser lifecycle using ThreadLocal for parallel execution support.
- * Replaces the previous Strategy pattern (ChromeManager/EdgeManager/FirefoxManager)
+ * Replace the previous Strategy pattern (ChromeManager/EdgeManager/FirefoxManager)
  * with a simpler enum-based approach.
  */
 public final class DriverFactory {
